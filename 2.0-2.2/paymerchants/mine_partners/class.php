@@ -73,8 +73,8 @@ class AP_MinePartnersApi
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
             }
         } else {
-            $requestParameters = http_build_query($parameters);
-            $requestUri .= "?{$requestParameters}";
+            $requestUri .= "?" . http_build_query($parameters);
+            $requestParameters = '';
         }
 
         $signature = hash_hmac('sha256', $requestParameters, $this->apiSignatureKey);

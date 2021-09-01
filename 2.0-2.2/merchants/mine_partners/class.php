@@ -51,9 +51,13 @@ class MinePartnersApi
 
             curl_setopt($curl, CURLOPT_POST, 1);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $requestParameters);
+
+            if ($method == 'PUT') {
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
+            }
         } else {
-            $requestParameters = http_build_query($parameters);
-            $requestUri .= "?{$requestParameters}";
+            $requestUri .= "?" . http_build_query($parameters);
+            $requestParameters = '';
         }
 
         $signature = hash_hmac('sha256', $requestParameters, $this->apiSignatureKey);

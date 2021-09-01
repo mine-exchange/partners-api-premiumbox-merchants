@@ -190,7 +190,7 @@ trait MinePartnersTrait
     protected function merchantChangeOrderStatusIfNeeded($orderId, $orderData)
     {
         $orderDetails = get_data_merchant_for_id($orderId, []);
-        $orderAmount = is_sum($orderDetails['pay_sum'], 8);
+        $orderAmount = is_sum($orderDetails['sum'], 8);
         $actualOrderAmount = is_sum($orderData->inbound->amount, 8);
 
         if ($orderData->status == 'moderation') {
@@ -316,7 +316,7 @@ trait MinePartnersTrait
         }
 
         if ($this->isNotAllowedAmountDifference($amount, $actualAmount, $allowedDifferencePercentage)) {
-            throw new \Exception("Difference between initial and amount got from API is bigger than {$allowedDifferencePercentage}% ({$allowedDifference}. This is strange and can't process.");
+            throw new \Exception("Difference between initial and amount got from API is bigger than {$allowedDifferencePercentage}%. This is strange and can't process.");
         }
 
         $inboundCurrency = $this->wpdb->get_row("SELECT * FROM {$this->wpdb->prefix}currency WHERE id='{$order->currency_id_give}'");
