@@ -217,7 +217,7 @@ class merchant_mine_partners extends Merchant_Premiumbox
     {
         $merchantId = key_for_url('_webhook');
         $merchantSettings = $this->get_file_data($merchantId);
-        $merchantData = @get_merch_data($merchantSettings);
+        $merchantData = @get_merch_data($merchantId);
 
         $webhookData = file_get_contents('php://input');
 

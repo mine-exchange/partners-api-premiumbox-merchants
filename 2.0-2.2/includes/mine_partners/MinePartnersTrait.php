@@ -222,6 +222,7 @@ trait MinePartnersTrait
                 $this->merchantLog("Order ({$orderId}) has been completed successfully");
             } else {
                 set_bid_status('verify', $orderId, ['sum' => $actualOrderAmount]);
+                $this->addAdminComment("Несоответствие суммы: сумма в заявке ({$orderAmount} {$orderData->inbound->currency}), полученная сумма ({$actualOrderAmount} {$orderData->inbound->currency})", $orderId);
                 $this->merchantLog("Order ({$orderId}) was sent to verification, as the amount is incorrect: amount in order ({$orderAmount} {$orderData->inbound->currency}), received amount ({$actualOrderAmount} {$orderData->inbound->currency})");
             }
 
@@ -233,8 +234,7 @@ trait MinePartnersTrait
 
     protected function paymerchantChangeOrderStatusIfNeeded($order, $orderData, $paymerchantId)
     {
-        $paymerchantSettings = $this->get_file_data($paymerchantId);
-        $paymerchantData = @get_paymerch_data($paymerchantSettings);
+        $paymerchantData = @get_paymerch_data($paymerchantId);
 
         $orderAmount = is_sum(is_paymerch_sum($order, $paymerchantData), 8);
         $actualOrderAmount = is_sum($orderData->outbound->amount, 8);
@@ -253,13 +253,18 @@ trait MinePartnersTrait
         $this->removeAdminCommentIfExists($this->getPaymerchantStatusDescription('moderation'), $orderId);
 
         if ($orderData->status == 'success') {
-            if ($orderAmount == $actualOrderAmount) {
-                set_bid_status('success', $orderId);
-                $this->paymerchantLog("Order №\"{$orderId}\" has been completed successfully", $orderId);
-            } else {
+            $allowedDifferencePercentageFewer = is_isset($paymerchantData, 'allowed_difference_percent_fewer');
+            if ($allowedDifferencePercentageFewer == '') {
+                $allowedDifferencePercentageFewer = 0.1;
+            }
+
+            if ($orderAmount != $actualOrderAmount && $this->isNotAllowedAmountDifference($orderAmount, $actualOrderAmount, $allowedDifferencePercentageFewer)) {
                 set_bid_status('verify', $orderId);
                 $this->addAdminComment("Несоответствие суммы: сумма в заявке ({$orderAmount} {$orderData->outbound->currency}), выплаченная сумма ({$actualOrderAmount} {$orderData->outbound->currency})", $orderId);
                 $this->paymerchantLog("Order ({$orderId}) was sent to verification, as the amount is incorrect: amount in order ({$orderAmount} {$orderData->outbound->currency}), paid amount ({$actualOrderAmount} {$orderData->outbound->currency})");
+            } else {
+                set_bid_status('success', $orderId);
+                $this->paymerchantLog("Order №\"{$orderId}\" has been completed successfully", $orderId);
             }
 
             return;
