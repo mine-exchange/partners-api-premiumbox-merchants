@@ -6,5 +6,7 @@
 <kbd>![Вкладка "Firewall"](documentation-assets/cloudflare-firewall-rules-1.png)</kbd>
 
 ## 3. Добавить правило "URI Full - equals - Ваш URL"
-<kbd>![Вкладка "Firewall"](documentation-assets/cloudflare-firewall-rules-2.png)</kbd>
+<kbd>![URI Full - equals - Ваш URL](documentation-assets/cloudflare-firewall-rules-2.png)</kbd>
 
+## 4. Сохранить результат, выбрав "Allow" action
+<kbd>![Allow](documentation-assets/cloudflare-firewall-rules-3.png)</kbd>
