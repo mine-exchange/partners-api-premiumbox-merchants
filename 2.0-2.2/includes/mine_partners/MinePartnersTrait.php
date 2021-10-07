@@ -15,7 +15,7 @@ trait MinePartnersTrait
 
     protected $merchantStatusesMessages = [
         'error' => 'Ошибка в заявке. Свяжитесь с технической поддержкой. Повторную отправку делать запрещено.',
-        'canceled' => 'Деньги по заявке не отправлены и возвращены на Ваш внутренний счет. Возможные причины: ошибка в реквизитах получателя, ограничения банка эмитента и др. После получения этого статуса можно повторять отправку.',
+        'canceled' => 'Возможно, прошло более 30 минут с момента её создания, либо вы отменили заявку через ЛК, возможны иные причины.',
         'moderation' => 'Заявка проверяется оператором сервиса. Свяжитесь с службой поддержки чтобы уточнить детали.'
     ];
 
@@ -208,11 +208,19 @@ trait MinePartnersTrait
             return;
         }
 
-        if (in_array($orderData->status, ['error', 'canceled'])) {
+        if ($orderData->status == 'error') {
             set_bid_status('error', $orderId);
 
             $this->addAdminComment($this->getMerchantStatusDescription($orderData->status), $orderId);
-            $this->merchantLog("Error: Order ({$orderId}) {$this->getMerchantStatusDescription($orderData->status)}. Status: {$orderData->status}");
+            $this->merchantLog("Error: Order ({$orderId}) {$this->getMerchantStatusDescription($orderData->status)}");
+            return;
+        }
+
+        if ($orderData->status == 'canceled') {
+            set_bid_status('delete', $orderId);
+
+            $this->addAdminComment($this->getMerchantStatusDescription($orderData->status), $orderId);
+            $this->merchantLog("Deleted: Order ({$orderId}) {$this->getMerchantStatusDescription($orderData->status)}");
             return;
         }
 
